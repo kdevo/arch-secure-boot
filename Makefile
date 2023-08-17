@@ -1,5 +1,5 @@
 BIN := arch-secure-boot
-VERSION := 1.6.0
+VERSION := 0.0.1
 
 PREFIX ?= /usr
 BIN_DIR = $(DESTDIR)$(PREFIX)/bin
@@ -12,7 +12,9 @@ clean:
 .PHONY: install
 install:
 	install -Dm755 -t "$(BIN_DIR)/" $(BIN)
-	install -Dm644 -t "$(DESTDIR)/etc/$(BIN)/" recovery.nsh
+	install -Dm644 -t "$(DESTDIR)/etc/$(BIN)/" startup.nsh
+	install -Dm644 -t "$(DESTDIR)/etc/$(BIN)/" recovery.nsh.tmpl
+	install -Dm644 -t "$(DESTDIR)/etc/$(BIN)/" recovery.ascii.tmpl
 	install -Dm644 -t "$(SHARE_DIR)/libalpm/hooks" pacman-hooks/*
 	install -Dm644 -t "$(SHARE_DIR)/licenses/$(BIN)/" LICENSE
 	install -Dm644 -t "$(SHARE_DIR)/doc/$(BIN)/" README.md

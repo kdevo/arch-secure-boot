@@ -1,12 +1,25 @@
-# UEFI Secure Boot for Arch Linux + btrfs snapshot recovery
+# UEFI Secure Boot for Arch Linux via sbctl and mkinitcpio UKI + btrfs snapshot recovery
 
-Highly opinionated setup that provides minimal Secure Boot for Arch Linux, and a few recovery tools.
+Fork of a @maximbaz's highly opinionated setup that provides minimal Secure Boot for Arch Linux, and a few recovery tools.
+Thanks to @maximbaz for the great approach that doesn't rely on a heavy bootloader.
 
-Bootloaders (such as `GRUB` or `systemd-boot`) are intentionally not supported, as they significantly increase the amount of code that runs during boot, therefore increasing the attack surface.
+This fork...
+- might be even more opinionated (uses sbctl for signing, mkinitcpio for UKI)
+  - Goal: Transfer responsibility to programs that know what they are doing
+- might only work for specific setups (added instructions in `arch-secure-boot initial-setup`)
+- should only be used if you understand the content of every single file and action
+- is not tested thouroughly right now (use at own risk)
 
-## Installation
 
-The package is available on AUR: [arch-secure-boot](https://aur.archlinux.org/packages/arch-secure-boot/)
+## Needed packages
+
+- edk2-shell
+- sbctl
+- efibootmgr
+
+```sh
+sudo pacman -S edk2-shell sbctl efibootmgr
+```
 
 ## Configuration
 
@@ -14,29 +27,14 @@ See the available configuration options in the top of the script.
 
 Add your overrides to `/etc/arch-secure-boot/config`.
 
-Most notably, set `KERNEL=linux-hardened` if you use hardened Linux.
-
 ## Commands
 
 - `arch-secure-boot generate-keys` generates new keys for Secure Boot
 - `arch-secure-boot enroll-keys` adds them to your UEFI
-- `arch-secure-boot generate-efi` creates several images signed with Secure Boot keys
+- `arch-secure-boot generate-efi` creates recovery UKIs signed with Secure Boot keys
 - `arch-secure-boot add-efi` adds UEFI entry for the main Secure Boot image
 - `arch-secure-boot generate-snapshots` generates a list of btrfs snapshots for recovery
-- `arch-secure-boot initial-setup` runs all the steps in the proper order
-
-## Generated images
-
-- `secure-boot-linux.efi` - the main image
-  - `vmlinuz-linux` + `initramfs-linux` + `*-ucode` + hardcoded `cmdline`
-- `secure-boot-linux-efi-shell.efi` - UEFI shell that is used to boot into a snapshot
-  - because built-in UEFI shells are known to be buggy
-- `secure-boot-linux-recovery.efi` - recovery image that can be a used to boot from snapshot
-  - `vmlinuz-linux` + `initramfs-linux-fallback`
-- `secure-boot-linux-lts-recovery.efi` - recovery LTS image that can be used to boot from snapshot
-  - `vmlinuz-linux-lts` + `initramfs-linux-lts-fallback`
-
-`fwupdx64.efi` image is also being signed.
+- `arch-secure-boot initial-setup` runs all the steps in the proper order with manual intervention
 
 ## Initial setup
 
@@ -44,15 +42,19 @@ Most notably, set `KERNEL=linux-hardened` if you use hardened Linux.
 - Generate and enroll keys
 - Generate EFI images and add the main one (only!) to UEFI
 - BIOS: Enable Secure Boot
+- BIOS: Lock boot order and settings
 
 ## Recovery instructions
 
 - BIOS: use admin password to boot into `efi-shell` image
-- Inspect recovery script using `edit FS0:\recovery.nsh` (if `FS0` is not your hard disk, try other `FSn`)
-- Run the script using `FS0:\recovery.nsh`
-- Once recovered, remove `efi-shell` entry from UEFI
+- Recovery will automatically start (via `startup.nsh`)
+- Follow instructions on screen, remember snapshot-id (first number in each line)
+- Inspect recovery script using `edit recovery.nsh`
+- Run the script using `recovery.nsh <snapshot-id>`
+- Optional (depends on BIOS): Once recovered, remove `efi-shell` entry from UEFI
 
 ## Related links:
 
+- Original: https://github.com/maximbaz/arch-secure-boot
 - https://github.com/gdamjan/secure-boot
 - https://github.com/andreyv/sbupdate
