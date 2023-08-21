@@ -1,0 +1,13 @@
+# change config as needed, e.g. use HOOKS based on udev for grub-btrfs hook to work:
+ALL_config="/etc/mkinitcpio.conf"
+ALL_microcode=(/boot/*-ucode.img)
+
+PRESETS=('linux' 'linux_lts')
+
+linux_kver="/boot/vmlinuz-linux"
+linux_uki="/efi/EFI/Linux/recovery-arch-linux.efi"
+linux_options="-S autodetect --splash /usr/share/systemd/bootctl/splash-arch.bmp --no-cmdline" # cmdline is provided externally
+
+linux_lts_kver="/boot/vmlinuz-linux-lts"
+linux_lts_uki="/efi/EFI/Linux/recovery-arch-linux-lts.efi"
+linux_lts_options="-S autodetect --splash /usr/share/systemd/bootctl/splash-arch.bmp --no-cmdline" # cmdline is provided externally
