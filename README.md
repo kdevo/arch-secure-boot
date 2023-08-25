@@ -1,17 +1,29 @@
-# UEFI Secure Boot for Arch Linux via sbctl and mkinitcpio UKI + btrfs snapshot recovery
+# UEFI Secure Boot for Arch Linux + Recovery via BTRFS snapshots 
 
-Fork of a @maximbaz's highly opinionated setup that provides minimal Secure Boot for Arch Linux, and a few recovery tools.
+
+This is a fork of a @maximbaz's highly opinionated setup that provides minimal Secure Boot for Arch Linux, plus recovery tools.
 Thanks to @maximbaz for the great approach that doesn't rely on a heavy bootloader.
+
+This repo could be interesting for you if...
+- you're using the BTRFS filesystem in combination with snapper
+- you want to enable Secure Boot e.g. to avoid evil-maid attacks
+
+## Differences of this fork
 
 This fork...
 - might be even more opinionated (uses sbctl for signing, mkinitcpio for UKI)
-  - Goal: Transfer responsibility to programs that know what they are doing
-- might only work for specific setups (added instructions in `arch-secure-boot initial-setup`)
+- transfers responsibility to programs that have one job at which they are good at
 - should only be used if you understand the content of every single file and action
 - is not tested thouroughly right now (use at own risk)
 
 
-## Needed packages
+## Background
+
+While I previously used grub-btrfs for recovery, I decided against Grub, as it turned out to be particularly buggy in combination with TPM and Secure Boot (see https://github.com/Antynea/grub-btrfs/issues/190). Summarizing the issue, it causes booting a snapshot to fail if a certain amount of text is displayed in a submenu and the TPM module is enabled (which is needed for Secure Boot).
+
+This bug also shows how complex a fully-fledged bootloader such as Grub is and all the disadvantages that come with this complexity. I haven't looked at Grub's source code to understand what could cause the issue. Instead I invested my time to switch to the approach in this repository, after reading [@maximbaz's comment](https://github.com/Antynea/grub-btrfs/issues/92#issuecomment-705640920). 
+
+## Requirements
 
 - edk2-shell
 - sbctl
