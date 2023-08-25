@@ -83,7 +83,13 @@ case "$1" in
         ;;
 
     generate-snapshots)
-        snapper --no-dbus --iso -t 0 -c root list --disable-used-space --columns number,date,description | sort -b -gr | head -n -2 > "$ESP/snapshots.txt"
+        # descending order (n..0) not supported by snapper, so we sort and assemble table (header+table) on our own:
+        table=$(snapper --iso --no-dbus -c root list -t pre-post --columns 'number,post-number,date,description,userdata' --disable-used-space)
+        header=$(echo "$table" | head -n2)
+        data=$(echo "$table" | tail -n +3 | sort -n -r)
+        echo -e "${header}\n${data}" > "$ESP/snapshots.txt"
+
+        # render template for ASCII banner:
         sed "s|{{snapshot_count}}|$(wc -l < "$ESP/snapshots.txt")|g" "$DIR/recovery.ascii.tmpl" > "$ESP/recovery.ascii"
         sed -i "s|{{created_at}}|$(date --rfc-3339=seconds)|g" "$ESP/recovery.ascii"
         ;;
