@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# Adapted from https://wiki.archlinux.org/title/Unified_kernel_image
+uki="$3"
+[[ -n "$uki" ]] || exit 0
+
+sbctl sign "$uki"

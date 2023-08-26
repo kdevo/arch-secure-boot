@@ -16,6 +16,7 @@ install:
 	install -Dm644 -t "$(DESTDIR)/etc/$(BIN)/" recovery.nsh.tmpl
 	install -Dm644 -t "$(DESTDIR)/etc/$(BIN)/" recovery.ascii.tmpl
 	install -Dm644 -t "$(DESTDIR)/etc/$(BIN)/mkinitcpio.d" mkinitcpio.d/*
+	install -Dm744 -t "$(DESTDIR)/etc/initcpio/post" initcpio-post-hooks/*
 	install -Dm644 -t "$(SHARE_DIR)/libalpm/hooks" pacman-hooks/*
 	install -Dm644 -t "$(SHARE_DIR)/licenses/$(BIN)/" LICENSE
 	install -Dm644 -t "$(SHARE_DIR)/doc/$(BIN)/" README.md
