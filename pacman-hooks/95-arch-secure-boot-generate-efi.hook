@@ -1,0 +1,14 @@
+[Trigger]
+Operation = Upgrade
+Type = Path
+Target = usr/lib/modules/*/vmlinuz
+Target = usr/lib/initcpio/*
+Target = boot/*-ucode.img
+Target = usr/share/edk2-shell/x64/Shell_Full.efi
+Target = usr/bin/arch-secure-boot
+
+[Action]
+Description = Generating EFI recovery files
+When = PostTransaction
+Exec = /usr/bin/arch-secure-boot generate-efi-recovery
+# Consider to use/eval 'NeedsTargets' in order to only generate updated image

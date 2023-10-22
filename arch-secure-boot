@@ -95,17 +95,30 @@ case "$1" in
         ;;
 
     generate-efi)
-        echo "Generating EFI images..."
+        echo "Generating EFI images $NAME, $NAME_LTS..."
 
-        mkinitcpio -p "$DIR/mkinitcpio.d/recovery.preset"
         mkinitcpio -p "$DIR/mkinitcpio.d/linux.preset"
         mkinitcpio -p "$DIR/mkinitcpio.d/linux-lts.preset"
 
-        sbctl verify
-        cp -T -v /usr/share/edk2-shell/x64/Shell_Full.efi "$ESP/$EFI/$NAME_EFI_SHELL.efi"
         bins=(
             "$ESP/$EFI/$NAME.efi"
             "$ESP/$EFI/$NAME_LTS.efi"
+        )
+        for efi in "${bins[@]}"; do 
+            sbctl sign -s "$efi";
+        done
+        echo "Successfully generated $NAME, $NAME_LTS..."
+
+        $0 generate-efi-recovery
+        ;;
+
+    generate-efi-recovery)
+        echo "Generating EFI recovery images $RECOVERY_NAME, $RECOVERY_NAME_LTS..."
+
+        mkinitcpio -p "$DIR/mkinitcpio.d/recovery.preset"
+
+        cp -T -v /usr/share/edk2-shell/x64/Shell_Full.efi "$ESP/$EFI/$NAME_EFI_SHELL.efi"
+        bins=(
             "$ESP/$EFI/$RECOVERY_NAME.efi"
             "$ESP/$EFI/$RECOVERY_NAME_LTS.efi"
             "$ESP/$EFI/$NAME_EFI_SHELL.efi"
@@ -113,13 +126,11 @@ case "$1" in
         for efi in "${bins[@]}"; do 
             sbctl sign -s "$efi";
         done
-        sbctl verify
 
         # prepare recovery.nsh
         tmp="$(mktemp -d)"
         trap 'rm -rf $tmp' EXIT
         cd "$tmp"
-
 
         efi_path="/$EFI/$RECOVERY_NAME.efi"
         efi_path_lts="/$EFI/$RECOVERY_NAME_LTS.efi"
@@ -127,12 +138,13 @@ case "$1" in
         sed "s|{{PATH}}|${efi_path//\//\\\\}|g; s|{{CMDLINE}}|$(cat cmdline)|g" "$DIR/recovery.nsh.tmpl" > recovery.nsh
         sed -i "s|{{PATH_LTS}}|${efi_path_lts//\//\\\\}|g; s|{{CMDLINE}}|$(cat cmdline)|g" recovery.nsh
         sed -i "s|subvol=$SUBVOLUME_ROOT|subvol=\"$SUBVOLUME_SNAPSHOT\"|g" recovery.nsh
-        cat recovery.nsh
+
         cp -v recovery.nsh "$ESP"
-
         cp -v "$DIR/startup.nsh" "$ESP" # autostart recovery.nsh
-        ;;
 
+        echo "Successfully generated $RECOVERY_NAME, $RECOVERY_NAME_LTS."
+        ;;
+    
     add-efi)
         echo "Adding boot entry for main EFI image..."
 
