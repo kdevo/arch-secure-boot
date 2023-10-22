@@ -21,6 +21,9 @@ install:
 	install -Dm644 -t "$(SHARE_DIR)/licenses/$(BIN)/" LICENSE
 	install -Dm644 -t "$(SHARE_DIR)/doc/$(BIN)/" README.md
 
+# TODO(kdevo): consider shifting installation to mkinitcpio to arch-secure-boot script
+	install -Dm644 --backup=numbered -t "$(DESTDIR)/etc/mkinitcpio.d" mkinitcpio.d/* 
+
 .PHONY: dist
 dist: clean
 	mkdir -p dist

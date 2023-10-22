@@ -81,7 +81,7 @@ case "$1" in
         echo "- In order to automatically re-generate images when a new kernel is released, consider copying files in $DIR/mkinitcpio.d/* to /etc/mkinitcpio.d."
         echo "- Harden BIOS: Enable Secure Boot, lock settings and boot order."
         ;;
-
+    
     generate-snapshots)
         # descending order (n..0) not supported by snapper, so we sort and assemble table (header+table) on our own:
         table=$(snapper --iso --no-dbus -c root list --columns 'number,type,date,description' --disable-used-space)
@@ -97,8 +97,8 @@ case "$1" in
     generate-efi)
         echo "Generating EFI images $NAME, $NAME_LTS..."
 
-        mkinitcpio -p "$DIR/mkinitcpio.d/linux.preset"
-        mkinitcpio -p "$DIR/mkinitcpio.d/linux-lts.preset"
+        mkinitcpio -p linux 
+        mkinitcpio -p linux-lts 
 
         bins=(
             "$ESP/$EFI/$NAME.efi"
@@ -115,7 +115,7 @@ case "$1" in
     generate-efi-recovery)
         echo "Generating EFI recovery images $RECOVERY_NAME, $RECOVERY_NAME_LTS..."
 
-        mkinitcpio -p "$DIR/mkinitcpio.d/recovery.preset"
+        mkinitcpio -p recovery
 
         cp -T -v /usr/share/edk2-shell/x64/Shell_Full.efi "$ESP/$EFI/$NAME_EFI_SHELL.efi"
         bins=(
